@@ -59,6 +59,12 @@ class FileMonitorService : Service() {
             return START_NOT_STICKY
         }
         
+        // 处理停止服务的动作
+        if (intent.action == "STOP_SERVICE") {
+            stopSelf()
+            return START_NOT_STICKY
+        }
+        
         // 创建通知渠道（Android 8.0+）
         createNotificationChannel()
         
@@ -74,7 +80,8 @@ class FileMonitorService : Service() {
             return START_NOT_STICKY
         }
         
-        return START_STICKY
+        // 返回 START_REDELIVER_INTENT 以确保服务在被杀死后能重启并重新传递Intent
+        return START_REDELIVER_INTENT
     }
     
     private fun setupMonitoring(intent: Intent) {
@@ -289,10 +296,13 @@ class FileMonitorService : Service() {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_DEFAULT // 提高重要性以增加服务优先级
             ).apply {
                 description = "LUT图像处理文件监控服务"
                 setShowBadge(false)
+                enableLights(false)
+                enableVibration(false)
+                setSound(null, null) // 禁用声音
             }
             
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -313,14 +323,25 @@ class FileMonitorService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         
+        // 创建停止服务的PendingIntent
+        val stopIntent = Intent(this, FileMonitorService::class.java).apply {
+            action = "STOP_SERVICE"
+        }
+        val stopPendingIntent = PendingIntent.getService(
+            this, 1, stopIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("LUT图像处理")
             .setContentText(contentText)
             .setSmallIcon(R.drawable.ic_notification) // 需要添加通知图标
             .setContentIntent(pendingIntent)
             .setOngoing(true) // 持续通知，不能被滑动删除
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT) // 提高优先级
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .addAction(R.drawable.ic_notification, "停止监控", stopPendingIntent)
             .build()
     }
     

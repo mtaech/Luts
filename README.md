@@ -1,6 +1,6 @@
 # LUT图片处理Android应用
 
-这是一个Android应用，用于自动监控文件夹并对新增的图片应用LUT（Look-Up Table）滤镜效果。
+这是一个Android应用，用于自动监控文件夹并对新增的图片应用LUT滤镜效果。
 
 ## 主要功能
 

@@ -256,6 +256,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             } else {
                 context.startService(intent)
             }
+            
+            // 设置自动监控状态为启用
+            settingsManager.setAutoMonitoringEnabled(true)
             _isMonitoring.value = true
             return true
         } catch (e: Exception) {
@@ -272,10 +275,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         try {
             val intent = Intent(context, FileMonitorService::class.java)
             context.stopService(intent)
+            
+            // 设置自动监控状态为禁用
+            settingsManager.setAutoMonitoringEnabled(false)
             _isMonitoring.value = false
         } catch (e: Exception) {
             e.printStackTrace()
             // 即使停止服务失败，也要更新状态
+            settingsManager.setAutoMonitoringEnabled(false)
             _isMonitoring.value = false
         }
     }

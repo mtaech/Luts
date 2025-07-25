@@ -42,6 +42,7 @@ import java.util.Locale
 import cn.jetNest.lut.ui.theme.LutTheme
 import cn.jetNest.lut.ui.SettingsScreen
 import cn.jetNest.lut.utils.FileUtils
+import cn.jetNest.lut.utils.BatteryOptimizationUtils
 import cn.jetNest.lut.viewmodel.MainViewModel
 import cn.jetNest.lut.data.ProcessedImage
 import cn.jetNest.lut.ui.components.ImageViewerDialog
@@ -332,6 +333,11 @@ fun HomeScreen(
             }
         } else {
             permissionState.launchMultiplePermissionRequest()
+        }
+        
+        // 请求电池优化白名单
+        if (BatteryOptimizationUtils.shouldRequestBatteryOptimization(context)) {
+            BatteryOptimizationUtils.requestIgnoreBatteryOptimizations(context)
         }
     }
     

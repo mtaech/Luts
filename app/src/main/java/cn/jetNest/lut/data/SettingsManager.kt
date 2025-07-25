@@ -36,6 +36,10 @@ class SettingsManager(context: Context) {
     private val _ditherType = MutableStateFlow(getDitherType())
     val ditherType: StateFlow<String?> = _ditherType.asStateFlow()
     
+    // 自动监控状态
+    private val _isAutoMonitoringEnabled = MutableStateFlow(getAutoMonitoringEnabled())
+    val isAutoMonitoringEnabled: StateFlow<Boolean> = _isAutoMonitoringEnabled.asStateFlow()
+    
     /**
      * 设置监控目录
      */
@@ -145,6 +149,35 @@ class SettingsManager(context: Context) {
     }
     
     /**
+     * 设置自动监控状态
+     */
+    fun setAutoMonitoringEnabled(enabled: Boolean) {
+        sharedPreferences.edit()
+            .putBoolean(KEY_AUTO_MONITORING_ENABLED, enabled)
+            .apply()
+        _isAutoMonitoringEnabled.value = enabled
+    }
+    
+    /**
+     * 获取自动监控状态
+     */
+    private fun getAutoMonitoringEnabled(): Boolean {
+        return sharedPreferences.getBoolean(KEY_AUTO_MONITORING_ENABLED, false)
+    }
+    
+    /**
+     * 获取选中LUT文件的完整路径
+     */
+    fun getSelectedLutPath(context: Context): String? {
+        val filename = getSelectedLutFile()
+        return if (filename != null) {
+            "${context.filesDir}/lut/$filename"
+        } else {
+            null
+        }
+    }
+    
+    /**
      * 清除所有设置
      */
     fun clearAllSettings() {
@@ -167,6 +200,7 @@ class SettingsManager(context: Context) {
         private const val KEY_STRENGTH = "strength"
         private const val KEY_QUALITY = "quality"
         private const val KEY_DITHER_TYPE = "dither_type"
+        private const val KEY_AUTO_MONITORING_ENABLED = "auto_monitoring_enabled"
         
         // 默认值
         private const val DEFAULT_STRENGTH = 60

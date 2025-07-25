@@ -4,6 +4,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -118,42 +123,29 @@ fun ProcessedImagesList(
         } else {
             // 图片列表
             if (isGridView) {
-                // 网格视图 - 使用普通的Column和Row布局
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                // 网格视图 - 使用LazyVerticalGrid
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // 将图片分组，每行3个
-                    val chunkedImages = processedImages.chunked(3)
-                    chunkedImages.forEach { rowImages ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            rowImages.forEach { processedImage ->
-                                Box(
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    ProcessedImageGridItem(
-                                        processedImage = processedImage,
-                                        onClick = { onImageClick(processedImage) }
-                                    )
-                                }
-                            }
-                            // 如果这一行不满3个，用空白填充
-                            repeat(3 - rowImages.size) {
-                                Spacer(modifier = Modifier.weight(1f))
-                            }
-                        }
+                    items(processedImages) { processedImage ->
+                        ProcessedImageGridItem(
+                            processedImage = processedImage,
+                            onClick = { onImageClick(processedImage) }
+                        )
                     }
                 }
             } else {
-                // 列表视图 - 使用普通的Column布局
-                Column(
-                    modifier = Modifier.padding(16.dp),
+                // 列表视图 - 使用LazyColumn
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    processedImages.forEach { processedImage ->
+                    items(processedImages) { processedImage ->
                         ProcessedImageListItem(
                             processedImage = processedImage,
                             onClick = { onImageClick(processedImage) }
